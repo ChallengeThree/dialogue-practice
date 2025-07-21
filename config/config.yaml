@@ -1,0 +1,89 @@
+# config/config.yaml
+
+# General settings
+project_dir: "./"
+test_mode: True
+data_dir: "data/"
+output_dir: "results/"
+logging_dir: "logs/"
+seed: 42
+
+# Model & Tokenizer settings
+model:
+  # 'bart', 't5', 'pegasus', 'led', 'prophetnet' 중 하나를 선택하세요.
+  type: "bart" 
+  
+  # 모델 타입별 상세 설정
+  architectures:
+    bart:
+      # BART-base (가벼운 모델)
+      name: "facebook/bart-base"
+      prefix: ""
+    t5:
+      # T5-base
+      name: "t5-base"
+      prefix: "summarize: " 
+    pegasus:
+      # Pegasus-xsum (XSum 데이터셋에 파인튜닝된 모델)
+      name: "google/pegasus-xsum"
+      prefix: ""
+    led:
+      # LED-base-16384
+      name: "allenai/led-base-16384"
+      prefix: ""
+    prophetnet:
+      # ProphetNet-large-uncased
+      name: "microsoft/prophetnet-large-uncased"
+      prefix: ""
+
+  encoder_max_len: 256
+  decoder_max_len: 64
+  special_tokens: ['#Person1#', '#Person2#', '#Person3#', '#PhoneNumber#', '#Address#', '#PassportNumber#']
+
+# Training settings
+training:
+  num_train_epochs: 1
+  learning_rate: 5e-5
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 4
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  lr_scheduler_type: 'linear'
+  optim: 'adamw_torch'
+  eval_strategy: 'steps'
+  eval_steps: 500
+  save_strategy: 'steps'
+  save_steps: 500
+  save_total_limit: 1
+  fp16: True
+  load_best_model_at_end: False
+  predict_with_generate: True
+  generation_max_length: 64
+  do_train: True
+  do_eval: True
+  early_stopping_patience: 3
+  early_stopping_threshold: 0.0
+  report_to: "none"
+
+# Inference settings
+inference:
+  checkpoint_path: "results/best_model"
+  result_path: "submission/"
+  no_repeat_ngram_size: 3
+  early_stopping: True
+  num_beams: 5
+  batch_size: 8
+  remove_tokens: ['<usr>', '<s>', '</s>', '<pad>']
+
+# W&B settings for experiment tracking
+wandb:
+  entity: "your-wandb-entity"
+  project: "dialogue-summary-experiments"
+  # 실행 시 모델 타입에 따라 자동으로 이름이 설정됩니다.
+  name: "" # 비워두면 train.py에서 자동으로 생성
+
+# GPT-4 API settings (추론 전용)
+gpt4:
+  api_key: "YOUR_OPENAI_API_KEY" # 여기에 실제 API 키를 입력하세요.
+  model_name: "gpt-4-turbo"

@@ -1,0 +1,13 @@
+pandas
+pyyaml
+pytorch-lightning
+transformers
+transformers[torch]
+rouge
+rouge-score
+wandb
+tqdm
+scikit-learn
+openai
+Faker
+datasets
