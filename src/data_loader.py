@@ -31,7 +31,32 @@ class DataPreprocessor:
         self.prefix = self.config['model']['architectures'][model_type]['prefix']
 
     def clean_text(self, text: str) -> str:
+        # 1. 괄호 안 내용 제거 (e.g., (웃음), [참고])
+        text = re.sub(r'\([^)]*\)|\[[^\]]*\]', '', text)
+        
+        # 2. 번역투 표현 완화
+        # 어색한 대명사 제거 (문장 시작 또는 공백 뒤에 오는 경우)
+        text = re.sub(r'(^|\s)(그는|그녀는|당신은)\s', ' ', text)
+        # 기타 번역투 표현 변경
+        text = text.replace("에 대하여", "에 대해")
+        text = text.replace("을 가지고 있다", "이 있다")
+        text = text.replace("를 가지고 있다", "가 있다")
+
+        # 3. 구두점 주변 공백 정규화
+        # 구두점 앞의 공백 제거
+        text = re.sub(r'\s+([.,?!%])', r'\1', text)
+        # 구두점 뒤에 공백 추가 (이미 공백이 있는 경우는 유지)
+        text = re.sub(r'([.,?!%])(?=[가-힣A-Za-z0-9])', r'\1 ', text)
+
+        # 4. 한글, 영어, 숫자, 및 특정 특수문자(#, \n, ., ,, ?, !, %)를 제외한 나머지 제거
+        text = re.sub(r'[^가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9#\n.,?!% ]', '', text)
+        
+        # 5. 반복되는 자음, 모음, 특수문자 처리 (e.g., ㅋㅋㅋ -> ㅋ, !!! -> !)
+        text = re.sub(r'([ㄱ-ㅎㅏ-ㅣ.,?!])\1{2,}', r'\1', text)
+        
+        # 6. 여러 개의 공백을 하나로 줄이고 양쪽 끝의 공백 제거
         text = re.sub(r'\s+', ' ', text).strip()
+        
         return text
 
     def prepare_data(self, data_path: str):
